@@ -15,6 +15,10 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 # prisma.config.ts reads DATABASE_URL at generate time; the real value arrives at runtime.
 ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder"
+# Page-data collection imports auth config; runtime values replace these.
+ENV NEXTAUTH_SECRET="build-only-placeholder-secret-32-chars"
+ENV NEXTAUTH_URL="https://placeholder.invalid"
+ENV APP_URL="https://placeholder.invalid"
 RUN npx prisma generate --schema prisma/schema.postgres.prisma && npm run build
 
 # ---- run (prod: set DATABASE_URL to Postgres) ----
