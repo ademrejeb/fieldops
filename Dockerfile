@@ -3,7 +3,8 @@ FROM node:22-bookworm-slim AS deps
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 COPY package*.json ./
-RUN npm ci
+# better-sqlite3 is local-only; its native build is skipped in the container.
+RUN npm ci --ignore-scripts
 
 # ---- build ----
 FROM node:22-bookworm-slim AS builder
