@@ -1,0 +1,515 @@
+// ============================================================
+// FSM Platform — Prisma Schema
+// DB: SQLite for dev (file:./dev.db)
+// PROD: PostgreSQL — see DATABASE_SWITCH.md (1-line change)
+// ------------------------------------------------------------
+// Portability rules applied:
+// - All IDs: String @default(cuid()) (works pg + sqlite)
+// - No native DB types, no autoincrement, no raw SQL
+// - Json fields used for customFields / schema (pg JSONB, sqlite TEXT)
+// - Float/Int/DateTime/Boolean only — fully portable
+// To switch: change provider -> "postgresql" + DATABASE_URL
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  DISPATCHER
+  MANAGER
+  TECHNICIAN
+  CLIENT
+}
+
+enum Priority {
+  P1_CRITICAL
+  P2_HIGH
+  P3_NORMAL
+  P4_LOW
+}
+
+enum Channel {
+  PHONE
+  EMAIL
+  PORTAL
+  IOT
+  WHATSAPP
+}
+
+enum TicketStatus {
+  NEW
+  QUALIFIED
+  SCHEDULED
+  EN_ROUTE
+  ON_SITE
+  IN_PROGRESS
+  RESOLVED
+  INVOICED
+  CLOSED
+  CANCELLED
+}
+
+enum WorkOrderStatus {
+  DRAFT
+  SCHEDULED
+  ASSIGNED
+  EN_ROUTE
+  ON_SITE
+  IN_PROGRESS
+  DONE
+  APPROVED
+  CANCELLED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  PARTIAL
+  OVERDUE
+  CANCELLED
+}
+
+enum ContractTier {
+  GOLD
+  SILVER
+  BRONZE
+  PAYG
+}
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  industry  String   @default("HVAC") // ELEVATOR | HVAC | SECURITY | INDUSTRIAL
+  locale    String   @default("fr-MA")
+  settings  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users       User[]
+  customers   Customer[]
+  technicians Technician[]
+  assetTypes  AssetType[]
+  assets      Asset[]
+  tickets     Ticket[]
+  workOrders  WorkOrder[]
+  inventory   InventoryItem[]
+  invoices    Invoice[]
+  contracts   Contract[]
+  slaPolicies SlaPolicy[]
+  checklists  ChecklistTemplate[]
+  locations   StockLocation[]
+  positions   Position[]
+  apiTokens   ApiToken[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  tenantId  String
+  email     String
+  name      String
+  role      Role     @default(DISPATCHER)
+  passwordH String   @default("") // bcrypt hash (Auth.js ready)
+  active    Boolean  @default(true)
+  customerId String? // portal scope: client user linked to their Customer
+  createdAt DateTime @default(now())
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  technician Technician?
+  customer   Customer?   @relation(fields: [customerId], references: [id])
+  apiTokens  ApiToken[] // mobile app tokens
+
+  @@unique([tenantId, email])
+  @@index([tenantId, role])
+}
+
+model Technician {
+  id            String   @id @default(cuid())
+  tenantId      String
+  userId        String?  @unique
+  name          String
+  phone         String   @default("")
+  email         String   @default("") // mission notifications
+  skills        Json? // string[] e.g. ["ELEVATOR","HVAC_VRV"]
+  certifications Json? // string[]
+  lat           Float    @default(33.5731) // home base / last GPS — editable in app
+  lng           Float    @default(-7.5898)
+  deviceId      String   @default("") // GPS tracker code or mobile device id (ingest mapping)
+  status        String   @default("AVAILABLE") // AVAILABLE | ON_JOB | OFFLINE
+  rating        Float    @default(5.0)
+  vanStock      Json?
+  createdAt     DateTime @default(now())
+
+  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user        User?        @relation(fields: [userId], references: [id])
+  assignments Assignment[]
+  positions   Position[] // GPS trail (trackers + mobile app)
+
+  @@index([tenantId, status])
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  tenantId  String
+  name      String
+  type      String   @default("B2B")
+  email     String   @default("")
+  phone     String   @default("")
+  address   String   @default("")
+  createdAt DateTime @default(now())
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sites     Site[]
+  contracts Contract[]
+  tickets   Ticket[]
+  invoices  Invoice[]
+  users     User[] // portal logins linked to this customer
+
+  @@index([tenantId, name])
+}
+
+model Site {
+  id          String @id @default(cuid())
+  customerId  String
+  name        String
+  address     String @default("")
+  city        String @default("Casablanca")
+  lat         Float  @default(33.5731)
+  lng         Float  @default(-7.5898)
+  accessCode  String @default("")
+  contactName String @default("")
+  contactPhone String @default("")
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  assets   Asset[]
+
+  @@index([customerId])
+}
+
+model AssetType {
+  id           String   @id @default(cuid())
+  tenantId     String
+  name         String // e.g. "Elevator KONE MonoSpace"
+  category     String   @default("ELEVATOR")
+  schemaJson   Json? // custom field definitions
+  checklistDft Json?
+  createdAt    DateTime @default(now())
+
+  tenant Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assets Asset[]
+
+  @@unique([tenantId, name])
+}
+
+model Asset {
+  id           String    @id @default(cuid())
+  tenantId     String
+  siteId       String
+  assetTypeId  String
+  serialNo     String
+  name         String
+  installDate  DateTime?
+  warrantyUntil DateTime?
+  healthScore  Int       @default(100)
+  customData   Json?
+  iotDeviceId  String    @default("")
+
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  site      Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  assetType AssetType @relation(fields: [assetTypeId], references: [id])
+  tickets   Ticket[]
+
+  @@unique([tenantId, serialNo])
+  @@index([tenantId, siteId])
+}
+
+model Contract {
+  id            String       @id @default(cuid())
+  tenantId      String
+  customerId    String
+  tier          ContractTier @default(SILVER)
+  slaResponseH  Int          @default(8)
+  slaResolveH   Int          @default(48)
+  startDate     DateTime     @default(now())
+  endDate       DateTime?
+  billingTerms  String       @default("NET_30")
+  coveredAssets Json?
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tickets  Ticket[]
+
+  @@index([tenantId, customerId])
+}
+
+model SlaPolicy {
+  id        String   @id @default(cuid())
+  tenantId  String
+  name      String
+  priority  Priority
+  tier      ContractTier
+  responseH Int
+  resolveH  Int
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, priority, tier])
+}
+
+/** Real stock locations (depots + vans) — every location input reads from here. */
+model StockLocation {
+  id           String  @id @default(cuid())
+  tenantId     String
+  name         String // MAIN, VAN-01… (used as InventoryItem.location key)
+  label        String  @default("") // Dépôt principal, Camionnette Yassine
+  kind         String  @default("DEPOT") // DEPOT | VAN
+  technicianId String? // van assigned to this tech
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, name])
+}
+
+model Ticket {
+  id             String       @id @default(cuid())
+  tenantId       String
+  number         String // human readable TK-2026-0001 (per tenant unique)
+  customerId     String
+  assetId        String?
+  contractId     String?
+  channel        Channel      @default(PHONE)
+  priority       Priority     @default(P3_NORMAL)
+  status         TicketStatus @default(NEW)
+  title          String
+  description    String       @default("")
+  errorCode      String       @default("")
+  aiSummary      String       @default("")
+  aiConfidence   Float        @default(0)
+  slaDueAt       DateTime?
+  slaBreached    Boolean      @default(false)
+  customFields   Json?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer   Customer    @relation(fields: [customerId], references: [id])
+  asset      Asset?      @relation(fields: [assetId], references: [id])
+  contract   Contract?   @relation(fields: [contractId], references: [id])
+  workOrders WorkOrder[]
+  events     AuditEvent[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, status, priority])
+  @@index([tenantId, slaDueAt])
+}
+
+model WorkOrder {
+  id              String          @id @default(cuid())
+  tenantId        String
+  ticketId        String
+  number          String
+  jobType         String          @default("REPAIR") // INSTALL | REPAIR | PREVENTIVE
+  status          WorkOrderStatus @default(DRAFT)
+  scheduledStart  DateTime?
+  scheduledEnd    DateTime?
+  estimatedMin    Int             @default(90)
+  requiredSkills  Json?
+  checklistId     String?
+  notes           String          @default("")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  tenant      Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  ticket      Ticket             @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  assignments Assignment[]
+  checklist   ChecklistTemplate? @relation(fields: [checklistId], references: [id])
+  executions  ChecklistExecution[]
+  parts       PartUsage[]
+  reports     ServiceReport[]
+  timeLogs    TimeLog[]
+
+  @@unique([tenantId, number])
+  @@index([tenantId, status])
+  @@index([ticketId])
+}
+
+model Assignment {
+  id           String    @id @default(cuid())
+  workOrderId  String
+  technicianId String
+  assignedAt   DateTime  @default(now())
+  etaMin       Int       @default(30)
+  seq          Int       @default(1)
+
+  workOrder  WorkOrder  @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  technician Technician @relation(fields: [technicianId], references: [id])
+
+  @@unique([workOrderId, technicianId])
+}
+
+model ChecklistTemplate {
+  id        String   @id @default(cuid())
+  tenantId  String
+  name      String
+  category  String   @default("GENERAL")
+  version   Int      @default(1)
+  steps     Json // [{key,label,type,required,options}]
+  createdAt DateTime @default(now())
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  workOrders WorkOrder[]
+
+  @@unique([tenantId, name, version])
+}
+
+model ChecklistExecution {
+  id          String   @id @default(cuid())
+  workOrderId String
+  stepKey     String
+  label       String   @default("")
+  result      String   @default("") // PASS | FAIL | value
+  photoUrl    String   @default("")
+  createdAt   DateTime @default(now())
+
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+
+  @@index([workOrderId])
+}
+
+model InventoryItem {
+  id         String   @id @default(cuid())
+  tenantId   String
+  sku        String
+  name       String
+  category   String   @default("PART")
+  qtyOnHand  Int      @default(0)
+  qtyReserved Int     @default(0)
+  unitPrice  Int      @default(0) // cents (MAD)
+  reorderPt  Int      @default(5)
+  location   String   @default("MAIN")
+
+  tenant Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  usage  PartUsage[]
+
+  @@unique([tenantId, sku])
+  @@index([tenantId, qtyOnHand])
+}
+
+model PartUsage {
+  id          String   @id @default(cuid())
+  workOrderId String
+  itemId      String
+  qty         Int      @default(1)
+  unitPrice   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  workOrder WorkOrder     @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  item      InventoryItem @relation(fields: [itemId], references: [id])
+}
+
+model ServiceReport {
+  id            String   @id @default(cuid())
+  workOrderId   String
+  summary       String   @default("")
+  photosJson    Json?
+  signatureUrl  String   @default("") // base64 or S3 key
+  signedBy      String   @default("")
+  rating        Int      @default(0)
+  pdfUrl        String   @default("")
+  createdAt     DateTime @default(now())
+
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  invoice   Invoice?
+}
+
+model Invoice {
+  id             String        @id @default(cuid())
+  tenantId       String
+  customerId     String
+  reportId       String?       @unique
+  number         String // FAC-2026-0001
+  lines          Json // [{label,qty,unitPrice}]
+  totalCents     Int           @default(0)
+  currency       String        @default("MAD")
+  status         InvoiceStatus @default(DRAFT)
+  dueAt          DateTime?
+  paidAt         DateTime?
+  createdAt      DateTime      @default(now())
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer Customer  @relation(fields: [customerId], references: [id])
+  report   ServiceReport? @relation(fields: [reportId], references: [id])
+
+  @@unique([tenantId, number])
+  @@index([tenantId, status])
+}
+
+model TimeLog {
+  id          String   @id @default(cuid())
+  workOrderId String
+  techName    String   @default("")
+  startedAt   DateTime @default(now())
+  endedAt     DateTime?
+  minutes     Int      @default(0)
+
+  workOrder WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+}
+
+model AuditEvent {
+  id        String   @id @default(cuid())
+  ticketId  String
+  actor     String   @default("system")
+  action    String // CREATED | STATUS_CHANGED | ASSIGNED | NOTE | SLA_BREACH | INVOICED
+  fromStatus String  @default("")
+  toStatus   String  @default("")
+  detail    String   @default("")
+  createdAt DateTime @default(now())
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId, createdAt])
+}
+
+/** GPS positions from trackers (TK103/Teltonika/Traccar-style) + mobile app. */
+model Position {
+  id           String    @id @default(cuid())
+  tenantId     String
+  technicianId String?
+  deviceId     String    @default("") // tracker code or mobile device id
+  lat          Float
+  lng          Float
+  speed        Int       @default(0) // km/h
+  battery      Int       @default(0) // %
+  recordedAt   DateTime  @default(now())
+  source       String    @default("gps") // gps | tracker | mobile | sim
+
+  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  technician Technician? @relation(fields: [technicianId], references: [id])
+
+  @@index([technicianId, recordedAt])
+  @@index([deviceId, recordedAt])
+}
+
+/** Opaque tokens for the mobile app (Bearer). Stored hashed, revocable. */
+model ApiToken {
+  id         String    @id @default(cuid())
+  tenantId   String
+  userId     String
+  name       String    @default("mobile")
+  tokenHash  String    @unique
+  expiresAt  DateTime?
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
