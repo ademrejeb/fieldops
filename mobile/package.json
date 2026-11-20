@@ -1,0 +1,33 @@
+{
+  "name": "fieldops-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "expo": "latest",
+    "expo-router": "latest",
+    "expo-status-bar": "latest",
+    "expo-secure-store": "latest",
+    "expo-location": "latest",
+    "expo-task-manager": "latest",
+    "expo-image-picker": "latest",
+    "expo-constants": "latest",
+    "expo-linking": "latest",
+    "@react-native-async-storage/async-storage": "latest",
+    "react": "latest",
+    "react-native": "latest",
+    "react-native-safe-area-context": "latest",
+    "react-native-screens": "latest",
+    "react-native-svg": "latest"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "typescript": "latest"
+  }
+}

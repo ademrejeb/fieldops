@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+/* Class-based dark mode: `.dark` on <html>, toggled by the ThemeToggle (system default). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --color-ink-950: #0b1220;
+  --color-ink-900: #111a2e;
+  --color-ink-800: #1a2540;
+  --color-brand-600: #1d4ed8;
+  --color-brand-500: #2563eb;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: #f4f6fa;
+  color: #0f172a;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.dark body {
+  background: #060b16;
+  color: #e6ecf5;
+}
+
+/* Visible keyboard focus everywhere (accessibility). */
+:where(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+.dark :where(a, button, input, select, textarea, summary):focus-visible {
+  outline-color: #93c5fd;
+}
+
+/* Dense professional table */
+.data-table th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #475569;
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 13px 14px;
+  border-bottom: 1px solid #eef2f7;
+  font-size: 14px;
+  vertical-align: middle;
+}
+.data-table tbody tr:hover {
+  background: #f8fafc;
+}
+.dark .data-table th {
+  color: #94a3b8;
+  border-bottom-color: #1e293b;
+  background: #0d1626;
+}
+.dark .data-table td {
+  border-bottom-color: #16203180;
+}
+.dark .data-table tbody tr:hover {
+  background: #0d1626;
+}
+
+/* Thin scrollbars like ServiceTitan */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+.dark *::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+.timeline-dot::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 28px;
+  bottom: -8px;
+  width: 2px;
+  background: #e2e8f0;
+}
+.dark .timeline-dot::before {
+  background: #1e293b;
+}
+.timeline-item:last-child .timeline-dot::before {
+  display: none;
+}
+
+/* Loading skeleton shimmer */
+@keyframes fieldops-shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(90deg, #eef2f7 25%, #e2e8f0 37%, #eef2f7 63%);
+  background-size: 400px 100%;
+  animation: fieldops-shimmer 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+.dark .skeleton {
+  background: linear-gradient(90deg, #142033 25%, #1e293b 37%, #142033 63%);
+  background-size: 400px 100%;
+}
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Leaflet dark tiles filter */
+.dark .leaflet-tile {
+  filter: brightness(0.72) invert(1) contrast(0.88) hue-rotate(180deg) saturate(0.7);
+}
+.dark .leaflet-container {
+  background: #0b1220;
+}
+.dark .leaflet-popup-content-wrapper,
+.dark .leaflet-popup-tip {
+  background: #0f172a;
+  color: #e6ecf5;
+}

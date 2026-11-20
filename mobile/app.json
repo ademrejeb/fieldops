@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "FieldOps Tech",
+    "slug": "fieldops-tech",
+    "version": "1.0.0",
+    "scheme": "fieldops",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0b1220"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Votre position est envoyée au dispatch pendant vos missions.",
+        "NSLocationWhenInUseUsageDescription": "Votre position est envoyée au dispatch pendant vos missions.",
+        "NSLocationAlwaysUsageDescription": "Votre position est envoyée au dispatch pendant vos missions.",
+        "NSCameraUsageDescription": "Photos avant/après intervention.",
+        "UIBackgroundModes": ["location"]
+      }
+    },
+    "android": {
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_LOCATION",
+        "CAMERA"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Votre position est envoyée au dispatch pendant vos missions.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "isAndroidForegroundServiceEnabled": true
+        }
+      ],
+      "expo-secure-store"
+    ]
+  }
+}

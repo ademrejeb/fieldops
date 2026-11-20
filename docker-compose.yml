@@ -1,0 +1,26 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      # Dev default (SQLite inside container). For Postgres, uncomment:
+      # DATABASE_URL: postgresql://fsm:fsm_secret@db:5432/fsm?schema=public
+      DATABASE_URL: file:./prisma/dev.db
+    depends_on:
+      - db
+
+  # Production DB (Postgres 16). To use: set DATABASE_URL above to this host.
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: fsm
+      POSTGRES_PASSWORD: fsm_secret
+      POSTGRES_DB: fsm
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
