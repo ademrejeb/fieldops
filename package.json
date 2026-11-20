@@ -11,6 +11,7 @@
     "db:migrate": "prisma migrate dev --name init",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:accounts": "tsx prisma/seed.accounts.ts",
     "db:setup": "prisma db push && npm run db:seed"
   },
   "prisma": {
