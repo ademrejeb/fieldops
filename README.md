@@ -69,7 +69,7 @@ sans carte bancaire :
   `openai-fast`, sans clé. Le tier anonyme limite à une réponse toutes les 45 s
   par IP ; FieldOps bascule alors sur le classement déterministe.
 
-Changer de modèle = éditer la connexion dans la Factory, puis republier l’agent.
+Changer de modèle = éditer la connexion dans la Factory. Si le tunnel redémarre, mettez à jour la **Base URL** de la connexion (les runs publiés utilisent la connexion en direct).
 
 ## Auth + RBAC (NextAuth credentials + JWT)
 - Login: `/login` — demo password for all accounts: `FieldOps123!`
