@@ -38,6 +38,39 @@ Key routes: `/login` (JWT credentials) · `/` Command Center · `/tickets` · `/
   API token : `/api/mobile/*` (login, jobs, checklist, parts, time, report,
   position, parts). Démarrage : voir `mobile/README.md`.
 
+## Dispatch IA (AI Agent Factory)
+
+Le bouton **Dispatch IA** d’une intervention appelle un agent publié de la
+Factory (`POST /api/v1/agents/{id}/runs` avec une clé `agents:run`). L’agent
+charge le contexte réel du ticket (techniciens, compétences, distances, charge,
+SLA) via `POST /api/agents/dispatch-context` protégé par
+`AGENT_CONTEXT_SECRET`, choisit un technicien et renvoie un JSON. FieldOps
+affiche le résumé, les raisons, la confiance et le run Factory ; si l’agent
+échoue, le classement déterministe reste le repli.
+
+Variables :
+
+```bash
+FACTORY_GATEWAY_URL="https://agent-factory-api-xxxx.onrender.com"
+FACTORY_WEB_URL="https://factory-web-xxxx.onrender.com"
+FACTORY_AGENT_ID="agent_..."
+FACTORY_AGENT_KEY="aaf_..."        # clé client scope agents:run
+AGENT_CONTEXT_SECRET="..."         # même valeur dans le secret de l’agent
+```
+
+LLM gratuit : la Factory accepte tout endpoint OpenAI-compatible. Deux options
+sans carte bancaire :
+
+- **Ollama local + tunnel Cloudflare** : `ollama serve`, puis
+  `cloudflared tunnel --url http://127.0.0.1:11434`, et connectez
+  `https://<tunnel>.trycloudflare.com/v1` (modèle installé). Le tunnel doit
+  rester ouvert pendant la démo.
+- **Pollinations** : `https://text.pollinations.ai/openai`, modèle
+  `openai-fast`, sans clé. Le tier anonyme limite à une réponse toutes les 45 s
+  par IP ; FieldOps bascule alors sur le classement déterministe.
+
+Changer de modèle = éditer la connexion dans la Factory, puis republier l’agent.
+
 ## Auth + RBAC (NextAuth credentials + JWT)
 - Login: `/login` — demo password for all accounts: `FieldOps123!`
 - Accounts: `dispatch@fieldops.ma` (Dispatcher) · `manager@fieldops.ma` (Manager) ·
