@@ -34,14 +34,17 @@ function aiSummary(
   decision: AgentDecision | null,
   used: boolean,
   fallbackReason: string | null,
+  runId: string | null,
 ): Record<string, unknown> {
   return {
     used,
+    engine: used ? "factory" : "deterministic",
     technicianId: decision?.technicianId ?? null,
     summary: decision?.summary ?? "",
     reasons: decision?.reasons ?? [],
     confidence: decision?.confidence ?? null,
     fallbackReason,
+    runId,
   };
 }
 
@@ -82,7 +85,7 @@ export async function POST(request: Request) {
       workOrder: existing,
       assignment: existing.assignments[0] ?? null,
       technician: existing.assignments[0]?.technician ?? null,
-      ai: { used: false, reused: true },
+      ai: { used: false, reused: true, engine: "existing", runId: null },
       ranked: context.ranked.slice(0, 5),
       context,
     });
@@ -165,6 +168,8 @@ export async function POST(request: Request) {
               score: chosen.score,
               etaMin: chosen.etaMin,
               aiUsed: used,
+              aiEngine: used ? "factory" : "deterministic",
+              aiRunId: factory.runId,
               confidence: decision?.confidence ?? null,
               fallbackReason,
             }),
@@ -177,7 +182,7 @@ export async function POST(request: Request) {
         workOrder: result.workOrder,
         assignment: result.assignment,
         technician: result.assignment.technician,
-        ai: aiSummary(decision, used, fallbackReason),
+        ai: aiSummary(decision, used, fallbackReason, factory.runId),
         ranked: context.ranked.slice(0, 5),
         context,
       });

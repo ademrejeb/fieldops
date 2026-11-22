@@ -70,7 +70,7 @@ export default async function TicketDetail({ params }: { params: Promise<{ id: s
           <div className="mt-1 text-[11px] text-blue-700/70 dark:text-blue-400/70">Source: {diag.source}</div>
         </div>
       </div>
-      <SuggestAssign ticketId={ticket.id} />
+      <SuggestAssign ticketId={ticket.id} factoryUrl={process.env.FACTORY_WEB_URL ?? null} />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <div className="space-y-4 xl:col-span-2">

@@ -69,6 +69,7 @@ export const EVENT_LABEL: Record<string, string> = {
   SLA_BREACH: "Délai dépassé",
   INVOICED: "Facturé",
   NOTIFIED: "Notification",
+  AI_DISPATCH: "Dispatch IA",
 };
 
 export const ACTOR_LABEL: Record<string, string> = {
@@ -82,6 +83,28 @@ export const ACTOR_LABEL: Record<string, string> = {
 
 /** Turns audit details into a sentence a non-technical person can read. */
 export function humanizeDetail(detail: string): string {
+  const trimmed = detail.trim();
+  if (trimmed.startsWith("{")) {
+    try {
+      const parsed = JSON.parse(trimmed) as Record<string, unknown>;
+      if (parsed.technicianName) {
+        const parts = [`Technicien ${String(parsed.technicianName)}`];
+        if (typeof parsed.score === "number") parts.push(`score ${Math.round(parsed.score)}/100`);
+        if (parsed.aiUsed) {
+          const confidence =
+            typeof parsed.confidence === "number"
+              ? ` · confiance ${Math.round(parsed.confidence * 100)}%`
+              : "";
+          parts.push(`agent Factory${confidence}`);
+        } else {
+          parts.push("repli déterministe");
+        }
+        return parts.join(" · ");
+      }
+    } catch {
+      /* fall through to the plain text rewrite */
+    }
+  }
   return detail
     .replace(/^Intake\s+/i, "Reçue via ")
     .replace(/\bPORTAL\b/g, "Portail client")

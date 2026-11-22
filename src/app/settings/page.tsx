@@ -74,12 +74,12 @@ export default async function SettingsPage() {
           </div>
           {factory.configured ? (
             <div className="mt-2 font-mono text-[11.5px] text-slate-500 dark:text-slate-400">
-              {factory.gatewayUrl} · agent {factory.agentId?.slice(0, 18)}…
+              agent {factory.agentId?.slice(0, 22)}…
             </div>
           ) : null}
           <a
             className="mt-2 inline-block text-[12.5px] font-semibold text-blue-700 hover:underline dark:text-blue-400"
-            href={factory.gatewayUrl ?? "http://localhost:3100"}
+            href={factory.webUrl ?? factory.gatewayUrl ?? "http://localhost:3100"}
             target="_blank"
             rel="noreferrer"
           >

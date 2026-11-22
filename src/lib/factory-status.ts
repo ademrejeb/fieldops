@@ -3,12 +3,14 @@ export interface FactoryStatus {
   configured: boolean;
   reachable: boolean | null;
   gatewayUrl: string | null;
+  webUrl: string | null;
   agentId: string | null;
   error: string | null;
 }
 
 export async function factoryStatus(): Promise<FactoryStatus> {
   const gatewayUrl = process.env.FACTORY_GATEWAY_URL?.trim() || null;
+  const webUrl = process.env.FACTORY_WEB_URL?.trim() || null;
   const agentId = process.env.FACTORY_AGENT_ID?.trim() || null;
   const key = process.env.FACTORY_AGENT_KEY?.trim() || null;
   if (!gatewayUrl || !agentId || !key) {
@@ -16,6 +18,7 @@ export async function factoryStatus(): Promise<FactoryStatus> {
       configured: false,
       reachable: null,
       gatewayUrl,
+      webUrl,
       agentId,
       error: "Set FACTORY_GATEWAY_URL, FACTORY_AGENT_ID and FACTORY_AGENT_KEY.",
     };
@@ -31,6 +34,7 @@ export async function factoryStatus(): Promise<FactoryStatus> {
       configured: true,
       reachable: response.ok,
       gatewayUrl,
+      webUrl,
       agentId,
       error: response.ok ? null : `Factory health check returned HTTP ${response.status}.`,
     };
@@ -39,6 +43,7 @@ export async function factoryStatus(): Promise<FactoryStatus> {
       configured: true,
       reachable: false,
       gatewayUrl,
+      webUrl,
       agentId,
       error: "Factory is configured but unreachable from this app.",
     };

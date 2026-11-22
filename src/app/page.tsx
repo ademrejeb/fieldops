@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { factoryStatus } from "@/lib/factory-status";
 import { getTenant } from "@/lib/tenant";
 import { customerScope } from "@/lib/require-auth";
 import { fmtDate, mad, PRIORITY_LABEL, STATUS_LABEL, priorityTone, statusTone } from "@/lib/format";
@@ -13,6 +14,7 @@ import {
   CircleDollarSign,
   MapPin,
   Siren,
+  Sparkles,
   Timer,
 } from "lucide-react";
 
@@ -24,7 +26,8 @@ export default async function CommandCenter() {
   const tenant = await getTenant();
   // eslint-disable-next-line react-hooks/purity
   const riskAt = new Date(Date.now() + 4 * 3600e3);
-  const [open, p1, slaRisk, techs, tickets, siteList, positions, inv] = await Promise.all([
+  const [open, p1, slaRisk, techs, tickets, siteList, positions, inv, aiDispatches, factory] =
+    await Promise.all([
     db.ticket.count({
       where: {
         tenantId: tenant.id,
@@ -70,6 +73,8 @@ export default async function CommandCenter() {
       take: 200,
     }),
     db.invoice.aggregate({ where: { tenantId: tenant.id }, _sum: { totalCents: true } }),
+    db.auditEvent.count({ where: { action: "AI_DISPATCH", ticket: { tenantId: tenant.id } } }),
+    factoryStatus(),
   ]);
   const mapSites = siteList.map((s) => ({
     id: s.id,
@@ -174,7 +179,25 @@ export default async function CommandCenter() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-violet-200 bg-violet-50/60 px-4 py-3 text-[13px] dark:border-violet-900/60 dark:bg-violet-950/20">
+        <div className="flex items-center gap-2 font-semibold text-violet-900 dark:text-violet-200">
+          <Sparkles className="h-4 w-4" />
+          Dispatch IA
+          <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+            factory.configured && factory.reachable
+              ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
+              : "bg-amber-100 text-amber-800 dark:bg-amber-950/50 dark:text-amber-300"
+          }`}>
+            {factory.configured && factory.reachable ? "Agent Factory connecté" : factory.configured ? "injoignable" : "non configuré"}
+          </span>
+        </div>
+        <div className="flex items-center gap-3 text-violet-900/80 dark:text-violet-200/80">
+          <span>{aiDispatches} dispatch{aiDispatches === 1 ? "" : "s"} assisté{aiDispatches === 1 ? "" : "s"}</span>
+          <Link href="/settings" className="font-semibold underline">Configurer</Link>
+        </div>
+      </div>
+
+<div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card className="xl:col-span-2">
           <CardHeader>
             <div>

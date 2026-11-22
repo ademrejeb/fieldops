@@ -323,7 +323,7 @@ export async function callFactoryDispatchAgent(
     };
   }
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 25_000);
+  const timer = setTimeout(() => controller.abort(), 90_000);
   try {
     const response = await fetch(
       `${base.replace(/\/+$/, "")}/api/v1/agents/${encodeURIComponent(agentId)}/runs`,
