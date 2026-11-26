@@ -51,6 +51,8 @@ async function main() {
     { email: "dispatch@fieldops.ma", name: "Salma Dispatch", role: "DISPATCHER" as const },
     { email: "manager@fieldops.ma", name: "Omar Manager", role: "MANAGER" as const },
     { email: "tech@fieldops.ma", name: "Yassine El Amrani", role: "TECHNICIAN" as const },
+    { email: "mehdi@fieldops.ma", name: "Mehdi Bennani", role: "TECHNICIAN" as const },
+    { email: "khadija@fieldops.ma", name: "Khadija Tazi", role: "TECHNICIAN" as const },
     { email: "client@anfa.ma", name: "M. Berrada (Client)", role: "CLIENT" as const },
     { email: "admin@fieldops.ma", name: "Admin Sys", role: "ADMIN" as const },
   ];
@@ -215,6 +217,13 @@ async function main() {
   const yassineTech = await db.technician.findFirst({ where: { tenantId: tenant.id, name: { contains: "Yassine" } } });
   if (techUser && yassineTech && !yassineTech.userId) {
     await db.technician.update({ where: { id: yassineTech.id }, data: { userId: techUser.id } });
+  }
+  for (const email of ["mehdi@fieldops.ma", "khadija@fieldops.ma"]) {
+    const login = await db.user.findFirst({ where: { tenantId: tenant.id, email } });
+    const tech = await db.technician.findFirst({ where: { tenantId: tenant.id, email } });
+    if (login && tech && !tech.userId) {
+      await db.technician.update({ where: { id: tech.id }, data: { userId: login.id } });
+    }
   }
   console.log("Role links OK");
 }

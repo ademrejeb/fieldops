@@ -24,6 +24,8 @@ const USERS = [
   { email: "dispatch@fieldops.ma", name: "Salma Dispatch", role: "DISPATCHER" as const },
   { email: "manager@fieldops.ma", name: "Omar Manager", role: "MANAGER" as const },
   { email: "tech@fieldops.ma", name: "Yassine El Amrani", role: "TECHNICIAN" as const },
+  { email: "mehdi@fieldops.ma", name: "Mehdi Bennani", role: "TECHNICIAN" as const },
+  { email: "khadija@fieldops.ma", name: "Khadija Tazi", role: "TECHNICIAN" as const },
   { email: "client@anfa.ma", name: "M. Berrada (Client)", role: "CLIENT" as const },
   { email: "admin@fieldops.ma", name: "Admin Sys", role: "ADMIN" as const },
 ];
