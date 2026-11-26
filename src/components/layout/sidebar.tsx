@@ -17,7 +17,7 @@ import {
 import { useSession } from "next-auth/react";
 import { cn } from "@/lib/cn";
 import { roleLabel } from "@/lib/roles";
-import { BrandMark } from "@/components/ui/brand-mark";
+import { BrandMark, BrandWordmark } from "@/components/ui/brand-mark";
 
 type NavItem = {
   href: string;
@@ -66,7 +66,7 @@ export function NavLinks({ role, onNavigate }: { role: string; onNavigate?: () =
         if (items.length === 0) return null;
         return (
           <div key={group.label}>
-            <div className="px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            <div className="px-3 pb-1.5 text-[10.5px] font-bold uppercase tracking-[0.14em] text-stone-500">
               {group.label}
             </div>
             <div className="space-y-0.5">
@@ -81,16 +81,16 @@ export function NavLinks({ role, onNavigate }: { role: string; onNavigate?: () =
                     onClick={onNavigate}
                     aria-current={active ? "page" : undefined}
                     className={cn(
-                      "group flex min-h-10 items-center gap-3 rounded-lg px-3 py-2.5 text-[14px] font-medium transition-colors focus-visible:ring-2 focus-visible:ring-blue-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b1220]",
+                      "group flex min-h-10 items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] font-medium transition-all focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#171310]",
                       active
-                        ? "bg-blue-600 text-white shadow-sm"
-                        : "text-slate-300 hover:bg-white/5 hover:text-white"
+                        ? "bg-[#C2410C] text-white shadow-lg shadow-orange-950/30"
+                        : "text-stone-300 hover:bg-white/5 hover:text-white"
                     )}
                   >
                     <Icon
                       className={cn(
                         "h-[18px] w-[18px]",
-                        active ? "text-white" : "text-slate-400 group-hover:text-slate-200"
+                        active ? "text-white" : "text-stone-500 group-hover:text-stone-200"
                       )}
                     />
                     <span className="flex-1">{item.label}</span>
@@ -108,25 +108,25 @@ export function NavLinks({ role, onNavigate }: { role: string; onNavigate?: () =
 export function Sidebar() {
   const { data } = useSession();
   const role = (data?.user?.role ?? "DISPATCHER") as string;
-  const tenantName = data?.user?.tenantName ?? "FieldOps";
+  const tenantName = data?.user?.tenantName ?? "Khedma";
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-[248px] shrink-0 flex-col bg-[#0b1220] text-slate-300 lg:flex">
+    <aside className="sticky top-0 hidden h-screen w-[248px] shrink-0 flex-col bg-[#171310] text-stone-300 lg:flex">
       <div className="flex items-center gap-2.5 px-5 pb-5 pt-6">
-        <BrandMark size={36} />
+        <BrandMark size={38} />
         <div>
-          <div className="text-[15px] font-bold tracking-tight text-white">FieldOps</div>
-          <div className="flex items-center gap-1 text-[11.5px] text-slate-400">
-            <Radio className="h-3 w-3 text-emerald-400" /> Gestion des interventions
+          <BrandWordmark className="block text-[19px] leading-none text-white" />
+          <div className="mt-1 flex items-center gap-1 text-[11px] text-stone-400">
+            <Radio className="h-3 w-3 text-[#A3E635]" /> El khedma, mrigla.
           </div>
         </div>
       </div>
 
-      <div className="mx-4 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5">
-        <div className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
-          Entreprise
+      <div className="mx-4 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5">
+        <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-stone-500">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#EA580C]" /> Entreprise
         </div>
-        <div className="truncate text-[13.5px] font-semibold text-white">{tenantName}</div>
+        <div className="mt-0.5 truncate text-[13.5px] font-semibold text-white">{tenantName}</div>
       </div>
 
       <div className="mt-5 flex-1 overflow-y-auto px-3">
@@ -134,7 +134,7 @@ export function Sidebar() {
       </div>
 
       <div className="flex items-center gap-2.5 border-t border-white/10 px-5 py-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700 text-[12px] font-bold text-white">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#C2410C] text-[12px] font-bold text-white">
           {(data?.user?.name ?? "OP")
             .split(" ")
             .map((x: string) => x[0])
@@ -145,7 +145,7 @@ export function Sidebar() {
           <div className="truncate text-[13px] font-semibold text-white">
             {data?.user?.name ?? "Utilisateur"}
           </div>
-          <div className="text-[12px] text-slate-400">{roleLabel(role)}</div>
+          <div className="text-[12px] text-stone-400">{roleLabel(role)}</div>
         </div>
       </div>
     </aside>

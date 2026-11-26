@@ -6,7 +6,7 @@ import { Topbar } from "./topbar";
 
 export function ShellChrome({ children }: { children: React.ReactNode }) {
   const path = usePathname();
-  if (path === "/login" || path === "/docs") return <>{children}</>;
+  if (path === "/login" || path === "/docs" || path.startsWith("/t/")) return <>{children}</>;
   return (
     <div className="flex min-h-screen">
       <a
@@ -25,8 +25,8 @@ export function ShellChrome({ children }: { children: React.ReactNode }) {
         >
           {children}
         </main>
-        <footer className="border-t border-slate-200 bg-white/60 px-8 py-3 text-[12.5px] text-slate-600 dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-400">
-          FieldOps · Casablanca
+        <footer className="border-t border-stone-200/80 bg-[#FAF7F1]/70 px-8 py-3 text-[12px] text-stone-500 dark:border-stone-800 dark:bg-[#12100E]/60 dark:text-stone-400">
+          <span className="font-semibold text-stone-700 dark:text-stone-300">khedma.</span> · El khedma, mrigla. · Chaque intervention, au bon technicien.
         </footer>
       </div>
     </div>

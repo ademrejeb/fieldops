@@ -6,7 +6,7 @@ import { Bell } from "lucide-react";
 
 type Notif = {
   id: string; kind: string; severity: "critical" | "high" | "medium" | "info";
-  title: string; detail: string; href: string;
+  title: string; detail: string; href: string; source?: "alert" | "db";
 };
 
 const DOT: Record<Notif["severity"], string> = {
@@ -46,6 +46,25 @@ export function NotifBell() {
     const ids = items.map((n) => n.id);
     localStorage.setItem("notifSeen", JSON.stringify(ids));
     setSeen(ids);
+    const storedIds = items.filter((n) => n.source === "db").map((n) => n.id);
+    if (storedIds.length > 0) {
+      void fetch("/api/notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: storedIds }),
+      }).then(() => refresh());
+    }
+  }
+
+  function openItem(item: Notif) {
+    setOpen(false);
+    if (item.source === "db") {
+      void fetch("/api/notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: [item.id] }),
+      });
+    }
   }
 
   return (
@@ -74,7 +93,7 @@ export function NotifBell() {
           <div className="max-h-[380px] overflow-y-auto p-1.5">
             {items.length === 0 && <div className="p-6 text-center text-[13px] text-slate-500 dark:text-slate-400">Rien à signaler. Belle journée. ☀️</div>}
             {items.map((n) => (
-              <Link key={n.id} href={n.href} onClick={() => setOpen(false)}
+              <Link key={n.id} href={n.href} onClick={() => openItem(n)}
                 className={`flex gap-2.5 rounded-lg px-2.5 py-2 hover:bg-slate-50 dark:hover:bg-slate-800 ${seen.includes(n.id) ? "opacity-60" : ""}`}>
                 <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${DOT[n.severity]}`} />
                 <span className="min-w-0">

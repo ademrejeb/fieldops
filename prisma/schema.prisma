@@ -108,6 +108,7 @@ model Tenant {
   locations   StockLocation[]
   positions   Position[]
   apiTokens   ApiToken[]
+  notifications Notification[]
 }
 
 model User {
@@ -125,6 +126,7 @@ model User {
   technician Technician?
   customer   Customer?   @relation(fields: [customerId], references: [id])
   apiTokens  ApiToken[] // mobile app tokens
+  notifications Notification[]
 
   @@unique([tenantId, email])
   @@index([tenantId, role])
@@ -295,6 +297,19 @@ model Ticket {
   slaDueAt       DateTime?
   slaBreached    Boolean      @default(false)
   customFields   Json?
+  // Public intake + AI review trail. NONE = internal ticket, no review gate.
+  reviewStatus   String       @default("NONE") // NONE | PENDING | READY | ACCEPTED | REFUSED
+  reviewSource   String       @default("INTERNAL") // INTERNAL | PUBLIC
+  agentStatus    String       @default("NONE") // NONE | RUNNING | READY | FAILED
+  agentRunId     String       @default("")
+  agentDecision  Json?        // technician, summary, reasons, reasoning[], confidence, engine
+  agentInvoice   Json?        // {lines:[{label,qty,unitPrice}], totalCents, currency}
+  agentError     String       @default("")
+  requesterName  String       @default("")
+  requesterEmail String       @default("")
+  requesterPhone String       @default("")
+  reviewedBy     String       @default("")
+  reviewedAt     DateTime?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
@@ -304,6 +319,7 @@ model Ticket {
   contract   Contract?   @relation(fields: [contractId], references: [id])
   workOrders WorkOrder[]
   events     AuditEvent[]
+  invoice    Invoice?
 
   @@unique([tenantId, number])
   @@index([tenantId, status, priority])
@@ -433,6 +449,7 @@ model Invoice {
   id             String        @id @default(cuid())
   tenantId       String
   customerId     String
+  ticketId       String?       @unique
   reportId       String?       @unique
   number         String // FAC-2026-0001
   lines          Json // [{label,qty,unitPrice}]
@@ -445,6 +462,7 @@ model Invoice {
 
   tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   customer Customer  @relation(fields: [customerId], references: [id])
+  ticket   Ticket?   @relation(fields: [ticketId], references: [id])
   report   ServiceReport? @relation(fields: [reportId], references: [id])
 
   @@unique([tenantId, number])
@@ -512,4 +530,24 @@ model ApiToken {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+/** Per-user in-app notifications (assignment, review, SLA), distinct from derived ops alerts. */
+model Notification {
+  id        String    @id @default(cuid())
+  tenantId  String
+  userId    String
+  kind      String    @default("TASK") // TASK | REVIEW | SLA | BILLING
+  title     String
+  body      String    @default("")
+  href      String    @default("")
+  meta      Json?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@index([tenantId, createdAt])
 }

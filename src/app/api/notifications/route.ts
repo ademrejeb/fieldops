@@ -6,15 +6,16 @@ import { getTenant } from "@/lib/tenant";
 
 export type Notif = {
   id: string;
-  kind: "SLA" | "P1" | "STOCK" | "BILLING" | "NEW";
+  kind: "SLA" | "P1" | "STOCK" | "BILLING" | "NEW" | "TASK" | "REVIEW";
   severity: "critical" | "high" | "medium" | "info";
   title: string;
   detail: string;
   href: string;
   at: string;
+  source?: "alert" | "db";
 };
 
-/** Live ops alerts: SLA risk, unassigned P1, low stock, overdue bills, stale NEW. */
+/** Live ops alerts + per-user notifications (assignment, review). */
 export async function GET() {
   const tenant = await getTenant();
   const session = await getServerSession(authOptions);
@@ -22,6 +23,26 @@ export async function GET() {
   const cust = scope ? { customerId: scope } : {};
   const now = Date.now();
   const items: Notif[] = [];
+
+  const stored = session?.user?.id
+    ? await db.notification.findMany({
+        where: { userId: session.user.id, tenantId: tenant.id, readAt: null },
+        orderBy: { createdAt: "desc" },
+        take: 12,
+      })
+    : [];
+  for (const row of stored) {
+    items.push({
+      id: row.id,
+      kind: (row.kind as Notif["kind"]) ?? "TASK",
+      severity: row.kind === "REVIEW" ? "high" : "info",
+      title: row.title,
+      detail: row.body,
+      href: row.href || "/",
+      at: row.createdAt.toISOString(),
+      source: "db",
+    });
+  }
 
   const [sla, p1bare, stale, low, overdue] = await Promise.all([
     db.ticket.findMany({
@@ -83,4 +104,25 @@ export async function GET() {
   const rank = { critical: 0, high: 1, medium: 2, info: 3 } as const;
   items.sort((a, b) => rank[a.severity] - rank[b.severity]);
   return NextResponse.json({ items, count: items.length });
+}
+
+/** Mark stored notifications as read (all, or the given ids). */
+export async function POST(request: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Non authentifié." }, { status: 401 });
+  }
+  const body = (await request.json().catch(() => null)) as { ids?: unknown } | null;
+  const ids = Array.isArray(body?.ids)
+    ? body.ids.filter((value): value is string => typeof value === "string").slice(0, 50)
+    : [];
+  await db.notification.updateMany({
+    where: {
+      userId: session.user.id,
+      readAt: null,
+      ...(ids.length ? { id: { in: ids } } : {}),
+    },
+    data: { readAt: new Date() },
+  });
+  return NextResponse.json({ ok: true });
 }

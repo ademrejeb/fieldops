@@ -31,12 +31,12 @@ export async function getSession(): Promise<Session | null> {
   return { token, user: JSON.parse(user) };
 }
 
-export async function login(base: string, email: string, password: string): Promise<Session> {
+export async function login(base: string, email: string, password: string, tenant?: string): Promise<Session> {
   await setBase(base);
   const res = await fetch(`${base}/api/mobile/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: email.trim(), password }),
+    body: JSON.stringify({ email: email.trim(), password, tenant }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error ?? "Connexion impossible.");
@@ -123,6 +123,9 @@ async function call(path: string, method: string, body?: unknown, opts?: { queue
 
 export const api = {
   jobs: () => call("/api/mobile/jobs", "GET"),
+  notifications: () => call("/api/mobile/notifications", "GET"),
+  markNotifications: (ids?: string[]) =>
+    call("/api/mobile/notifications", "POST", ids ? { ids } : {}),
   job: (id: string) => call(`/api/mobile/jobs/${id}`, "GET"),
   status: (id: string, status: string, note = "") => call(`/api/mobile/jobs/${id}`, "PATCH", { status, note }, { queueable: true }),
   checklist: (id: string, body: object) => call(`/api/mobile/jobs/${id}/checklist`, "POST", body, { queueable: true }),

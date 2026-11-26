@@ -60,4 +60,6 @@ export const LIMITS = {
   login: { limit: 8, windowMs: 60_000 },
   ingest: { limit: 240, windowMs: 60_000 },
   mobile: { limit: 10, windowMs: 60_000 },
+  publicRequest: { limit: 5, windowMs: 10 * 60_000 },
+  publicRequestTenant: { limit: 30, windowMs: 24 * 3600_000 },
 } as const;

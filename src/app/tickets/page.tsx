@@ -90,7 +90,30 @@ export default async function TicketsPage({ searchParams }: {
               {tickets.map((t) => (
                 <tr key={t.id}>
                   <td>
-                    <Link href={`/tickets/${t.id}`} className="font-bold text-blue-700 hover:underline dark:text-blue-400">{t.number}</Link>
+                    <div className="flex items-center gap-2">
+                      <Link href={`/tickets/${t.id}`} className="font-bold text-blue-700 hover:underline dark:text-blue-400">{t.number}</Link>
+                      {t.reviewSource === "PUBLIC" && (
+                        <Badge
+                          className={
+                            t.reviewStatus === "ACCEPTED"
+                              ? "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300"
+                              : t.reviewStatus === "REFUSED"
+                                ? "bg-red-50 text-red-700 ring-red-200 dark:bg-red-950/30 dark:text-red-300"
+                                : t.agentStatus === "RUNNING"
+                                  ? "bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-950/30 dark:text-amber-300"
+                                  : "bg-orange-50 text-[#9A3412] ring-orange-200 dark:bg-orange-950/30 dark:text-orange-300"
+                          }
+                        >
+                          {t.reviewStatus === "ACCEPTED"
+                            ? "IA validée"
+                            : t.reviewStatus === "REFUSED"
+                              ? "IA refusée"
+                              : t.agentStatus === "RUNNING"
+                                ? "Agent…"
+                                : "Revue IA"}
+                        </Badge>
+                      )}
+                    </div>
                     <div className="max-w-[320px] truncate text-slate-600 dark:text-slate-300">{t.title}</div>
                   </td>
                   <td className="font-medium">{t.customer.name}</td>

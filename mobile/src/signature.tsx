@@ -47,14 +47,14 @@ export function SignaturePad({ onDone }: { onDone: (svg: string) => void }) {
           {strokes.map((p, i) => (
             <Polyline key={i} points={p} fill="none" stroke="#0f172a" strokeWidth={2.5} strokeLinecap="round" />
           ))}
-          {live ? <Polyline points={live} fill="none" stroke="#1d4ed8" strokeWidth={2.5} strokeLinecap="round" /> : null}
+          {live ? <Polyline points={live} fill="none" stroke="#C2410C" strokeWidth={2.5} strokeLinecap="round" /> : null}
         </Svg>
       </View>
       <View style={{ flexDirection: "row", gap: 8, marginTop: 8 }}>
         <Pressable onPress={() => setStrokes([])} style={{ flex: 1, padding: 10, borderRadius: 8, alignItems: "center", backgroundColor: "#e2e8f0" }}>
           <Text style={{ color: "#0f172a", fontWeight: "700" }}>Effacer</Text>
         </Pressable>
-        <Pressable onPress={done} disabled={empty} style={{ flex: 1, padding: 10, borderRadius: 8, alignItems: "center", backgroundColor: "#1d4ed8", opacity: empty ? 0.5 : 1 }}>
+        <Pressable onPress={done} disabled={empty} style={{ flex: 1, padding: 10, borderRadius: 10, alignItems: "center", backgroundColor: "#C2410C", opacity: empty ? 0.5 : 1 }}>
           <Text style={{ color: "#fff", fontWeight: "700" }}>Valider la signature</Text>
         </Pressable>
       </View>

@@ -4,15 +4,15 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg text-[13px] font-semibold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4",
+  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg text-[13px] font-semibold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C2410C] disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4",
   {
     variants: {
       variant: {
-        primary: "bg-blue-700 text-white shadow-sm hover:bg-blue-800 dark:hover:bg-blue-600",
+        primary: "bg-[#C2410C] text-white shadow-sm shadow-orange-900/10 hover:bg-[#9A3412] dark:bg-[#EA580C] dark:hover:bg-[#C2410C]",
         dark: "bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white",
         secondary:
-          "bg-white text-slate-700 ring-1 ring-inset ring-slate-200 hover:bg-slate-50 dark:bg-slate-900 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-800",
-        ghost: "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800",
+          "bg-white text-stone-700 ring-1 ring-inset ring-stone-200 hover:bg-stone-50 dark:bg-[#1C1917] dark:text-stone-200 dark:ring-stone-700 dark:hover:bg-[#251F1A]",
+        ghost: "text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-[#251F1A]",
         danger: "bg-red-600 text-white hover:bg-red-700 dark:hover:bg-red-500",
         success: "bg-emerald-600 text-white hover:bg-emerald-700 dark:hover:bg-emerald-500",
       },
@@ -53,7 +53,7 @@ export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
   return (
     <div
       className={cn(
-        "rounded-xl border border-slate-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.05)] dark:border-slate-800 dark:bg-slate-900 dark:shadow-none",
+        "rounded-2xl border border-stone-200/80 bg-white shadow-[0_1px_2px_rgba(28,25,23,0.06)] dark:border-stone-800 dark:bg-[#1C1917] dark:shadow-none",
         className
       )}
       {...props}
@@ -81,7 +81,7 @@ export function Input({ className, ...props }: React.InputHTMLAttributes<HTMLInp
   return (
     <input
       className={cn(
-        "h-9 w-full rounded-lg border border-slate-200 bg-white px-3 text-[13.5px] text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-950",
+        "h-9 w-full rounded-lg border border-stone-200 bg-white px-3 text-[13.5px] text-stone-900 placeholder:text-stone-400 focus:border-[#C2410C] focus:outline-none focus:ring-2 focus:ring-orange-100 dark:border-stone-700 dark:bg-[#1C1917] dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:ring-orange-950",
         className
       )}
       {...props}
@@ -93,7 +93,7 @@ export function Textarea({ className, ...props }: React.TextareaHTMLAttributes<H
   return (
     <textarea
       className={cn(
-        "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-[13.5px] text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-950",
+        "w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-[13.5px] text-slate-900 placeholder:text-slate-400 focus:border-[#C2410C] focus:outline-none focus:ring-2 focus:ring-orange-100 dark:border-stone-700 dark:bg-[#1C1917] dark:text-stone-100 dark:placeholder:text-stone-500 dark:focus:ring-orange-950",
         className
       )}
       {...props}
@@ -105,7 +105,7 @@ export function Select({ className, ...props }: React.SelectHTMLAttributes<HTMLS
   return (
     <select
       className={cn(
-        "h-9 rounded-lg border border-slate-200 bg-white px-2.5 text-[13.5px] font-medium text-slate-700 focus:border-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200",
+        "h-9 rounded-lg border border-stone-200 bg-white px-2.5 text-[13.5px] font-medium text-stone-700 focus:border-[#C2410C] focus:outline-none dark:border-stone-700 dark:bg-[#1C1917] dark:text-stone-200",
         className
       )}
       {...props}
@@ -118,8 +118,8 @@ export { Label } from "./label";
 export function Empty({ title, hint }: { title: string; hint?: string }) {
   return (
     <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
-      <div className="text-[13px] font-semibold text-slate-700 dark:text-slate-200">{title}</div>
-      {hint && <div className="mt-1 max-w-sm text-[12.5px] text-slate-500 dark:text-slate-400">{hint}</div>}
+      <div className="text-[13px] font-semibold text-stone-700 dark:text-stone-200">{title}</div>
+      {hint && <div className="mt-1 max-w-sm text-[12.5px] text-stone-500 dark:text-stone-400">{hint}</div>}
     </div>
   );
 }

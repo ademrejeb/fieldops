@@ -1,7 +1,13 @@
 import { db } from "./db";
 
 export const DEMO_TENANT_SLUG =
-  process.env.DEMO_TENANT_SLUG ?? "demo-casablanca";
+  (process.env.DEMO_TENANT_SLUG ?? "demo-casablanca").trim() || "demo-casablanca";
+
+/** Resolve a tenant from a public, tenant-scoped URL (`/t/{slug}/...`). */
+export async function getTenantBySlug(slug: string | undefined | null) {
+  if (!slug) return null;
+  return db.tenant.findUnique({ where: { slug } });
+}
 
 /** Single-tenant demo resolver. Production: resolve from subdomain / JWT. */
 export async function getTenant() {

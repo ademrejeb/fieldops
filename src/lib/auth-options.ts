@@ -111,6 +111,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
+        session.user.id = token.sub ?? undefined;
         session.user.role = token.role;
         session.user.tenantId = token.tenantId;
         session.user.tenantName = token.tenantName;

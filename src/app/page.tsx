@@ -73,7 +73,7 @@ export default async function CommandCenter() {
       take: 200,
     }),
     db.invoice.aggregate({ where: { tenantId: tenant.id }, _sum: { totalCents: true } }),
-    db.auditEvent.count({ where: { action: "AI_DISPATCH", ticket: { tenantId: tenant.id } } }),
+    db.auditEvent.count({ where: { action: { in: ["AI_DISPATCH", "AI_REVIEW"] }, ticket: { tenantId: tenant.id } } }),
     factoryStatus(),
   ]);
   const mapSites = siteList.map((s) => ({
@@ -179,10 +179,10 @@ export default async function CommandCenter() {
         ))}
       </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-violet-200 bg-violet-50/60 px-4 py-3 text-[13px] dark:border-violet-900/60 dark:bg-violet-950/20">
-        <div className="flex items-center gap-2 font-semibold text-violet-900 dark:text-violet-200">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-orange-200 bg-gradient-to-r from-orange-50 to-[#FFFBF5] px-4 py-3 text-[13px] dark:border-orange-900/50 dark:from-orange-950/30 dark:to-[#1C1917]">
+        <div className="flex items-center gap-2 font-semibold text-[#9A3412] dark:text-orange-200">
           <Sparkles className="h-4 w-4" />
-          Dispatch IA
+          Revue IA
           <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
             factory.configured && factory.reachable
               ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
@@ -191,8 +191,8 @@ export default async function CommandCenter() {
             {factory.configured && factory.reachable ? "Agent Factory connecté" : factory.configured ? "injoignable" : "non configuré"}
           </span>
         </div>
-        <div className="flex items-center gap-3 text-violet-900/80 dark:text-violet-200/80">
-          <span>{aiDispatches} dispatch{aiDispatches === 1 ? "" : "s"} assisté{aiDispatches === 1 ? "" : "s"}</span>
+        <div className="flex items-center gap-3 text-[#9A3412]/80 dark:text-orange-200/80">
+          <span>{aiDispatches} revue{aiDispatches === 1 ? "" : "s"} assistée{aiDispatches === 1 ? "" : "s"}</span>
           <Link href="/settings" className="font-semibold underline">Configurer</Link>
         </div>
       </div>

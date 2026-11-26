@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "FieldOps Tech",
-    "slug": "fieldops-tech",
+    "name": "khedma Tech",
+    "slug": "khedma-tech",
     "version": "1.0.0",
-    "scheme": "fieldops",
+    "scheme": "khedma",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0b1220"
+      "backgroundColor": "#171310"
     },
     "ios": {
       "supportsTablet": true,

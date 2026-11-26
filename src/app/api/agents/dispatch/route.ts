@@ -103,7 +103,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const factory = await callFactoryDispatchAgent(context.ticket.id, tenant.id);
+  const factory = await callFactoryDispatchAgent(context.ticket.id, tenant.id, context);
   let decision = factory.decision;
   let fallbackReason = factory.error;
   let used = factory.used && decision !== null;

@@ -6,7 +6,7 @@ import { fmtDate, mad, CHANNEL_LABEL, EVENT_LABEL, ACTOR_LABEL, JOB_LABEL, PRIOR
 import { Badge, Button, Card } from "@/components/ui/primitives";
 import { ConfirmDelete } from "@/components/ux/confirm";
 import { StatusChanger } from "./status-changer";
-import { SuggestAssign } from "./suggest-assign";
+import { AgentReview } from "./agent-review";
 import { Bot, FileText, MapPin, User } from "lucide-react";
 import { diagnose } from "@/lib/diagnostics-kb";
 
@@ -38,6 +38,25 @@ export default async function TicketDetail({ params }: { params: Promise<{ id: s
             <span className="font-mono text-[13px] font-bold text-slate-500 dark:text-slate-400">{ticket.number}</span>
             <Badge className={priorityTone(ticket.priority)}>{PRIORITY_LABEL[ticket.priority]}</Badge>
             <Badge className={statusTone(ticket.status)}>{STATUS_LABEL[ticket.status]}</Badge>
+            {ticket.reviewSource === "PUBLIC" && (
+              <Badge
+                className={
+                  ticket.reviewStatus === "ACCEPTED"
+                    ? "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300"
+                    : ticket.reviewStatus === "REFUSED"
+                      ? "bg-red-50 text-red-700 ring-red-200 dark:bg-red-950/30 dark:text-red-300"
+                      : "bg-orange-50 text-[#9A3412] ring-orange-200 dark:bg-orange-950/30 dark:text-orange-300"
+                }
+              >
+                {ticket.reviewStatus === "ACCEPTED"
+                  ? "Revue IA validée"
+                  : ticket.reviewStatus === "REFUSED"
+                    ? "Revue IA refusée"
+                    : ticket.agentStatus === "RUNNING"
+                      ? "Agent en cours"
+                      : "Revue IA"}
+              </Badge>
+            )}
             <span className="text-[12.5px] text-slate-500 dark:text-slate-400">· {CHANNEL_LABEL[ticket.channel] ?? ticket.channel} · à traiter avant {fmtDate(ticket.slaDueAt)}</span>
           </div>
           <h1 className="mt-1 max-w-3xl text-[22px] font-bold tracking-tight text-slate-900 dark:text-slate-100">{ticket.title}</h1>
@@ -70,7 +89,7 @@ export default async function TicketDetail({ params }: { params: Promise<{ id: s
           <div className="mt-1 text-[11px] text-blue-700/70 dark:text-blue-400/70">Source: {diag.source}</div>
         </div>
       </div>
-      <SuggestAssign ticketId={ticket.id} factoryUrl={process.env.FACTORY_WEB_URL ?? null} />
+      <AgentReview ticketId={ticket.id} factoryUrl={process.env.FACTORY_WEB_URL ?? null} />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <div className="space-y-4 xl:col-span-2">

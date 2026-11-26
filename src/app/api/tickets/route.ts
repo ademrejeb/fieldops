@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { db } from "@/lib/db";
 import { getTenant, nextNumber } from "@/lib/tenant";
 import { ticketCreateSchema } from "@/lib/validations";
 import { requireRole, customerScope } from "@/lib/require-auth";
 import { diagnose } from "@/lib/diagnostics-kb";
+import { runTicketAgent } from "@/lib/ticket-agent";
 
 export async function GET(req: Request) {
   const tenant = await getTenant();
@@ -34,7 +35,8 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   const session = await requireRole("CLIENT");
-  if (!session) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!session?.user) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const isAdmin = session.user.role === "ADMIN";
   const tenant = await getTenant();
   const body = await req.json();
   const parsed = ticketCreateSchema.safeParse(body);
@@ -68,8 +70,24 @@ export async function POST(req: Request) {
       aiSummary,
       aiConfidence: aiSummary ? diag.confidence : 0,
       slaDueAt: new Date(Date.now() + hours * 3600e3),
+      reviewSource: "INTERNAL",
+      reviewStatus: isAdmin ? "PENDING" : "NONE",
+      agentStatus: isAdmin ? "PENDING" : "NONE",
       events: { create: [{ actor: "dispatcher", action: "CREATED", detail: `Intake ${parsed.data.channel}` }] },
     },
   });
+
+  // Admins skip the review gate: the agent runs and accepts its own proposal.
+  // Everyone else gets the review by pressing "Relancer" on the ticket.
+  if (isAdmin) {
+    after(async () => {
+      try {
+        await runTicketAgent(ticket.id, { autoAccept: true });
+      } catch (cause) {
+        console.error("[khedma] admin ticket agent failed", cause);
+      }
+    });
+  }
+
   return NextResponse.json({ ticket }, { status: 201 });
 }

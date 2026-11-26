@@ -9,15 +9,15 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
-  title: "FieldOps — Gestion des interventions",
+  title: "khedma. — Le service, sans détour",
   description:
-    "Interventions, planning, techniciens et facturation réunis dans un seul espace.",
+    "Demandes publiques, dispatch augmenté, planning, techniciens et facturation : un seul espace pour les métiers du service.",
 };
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f4f6fa" },
-    { media: "(prefers-color-scheme: dark)", color: "#060b16" },
+    { media: "(prefers-color-scheme: light)", color: "#faf7f1" },
+    { media: "(prefers-color-scheme: dark)", color: "#12100e" },
   ],
 };
 

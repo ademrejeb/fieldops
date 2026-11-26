@@ -42,7 +42,7 @@ export async function requestTracking(intervalMin = TRACK_INTERVAL_MIN): Promise
     distanceInterval: 100,
     showsBackgroundLocationIndicator: true,
     foregroundService: {
-      notificationTitle: "FieldOps — suivi mission",
+      notificationTitle: "khedma — suivi mission",
       notificationBody: "Position envoyée au dispatch.",
     },
   });

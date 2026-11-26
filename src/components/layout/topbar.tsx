@@ -16,7 +16,7 @@ export function Topbar() {
   const ov = useOverview();
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/85 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80">
+    <header className="sticky top-0 z-30 border-b border-stone-200/80 bg-[#FAF7F1]/90 backdrop-blur-xl dark:border-stone-800 dark:bg-[#12100E]/85">
       <div className="mx-auto flex h-[60px] w-full max-w-[1400px] items-center gap-3 px-4 sm:px-5 lg:px-8">
         <MobileNav />
         <GlobalSearch />

@@ -19,6 +19,6 @@ export const config = {
   // and the health probe. Next internals (_next, __nextjs) must bypass or dev HMR
   // breaks (the dev client would be redirected to /login and reload in a loop).
   matcher: [
-    "/((?!api/auth|api/mobile|api/ingest|api/health|api/agents|_next|__nextjs|login|favicon.ico|robots.txt|sitemap.xml).*)",
+    "/((?!api/auth|api/mobile|api/ingest|api/health|api/agents|api/public|_next|__nextjs|t/|login|favicon.ico|robots.txt|sitemap.xml).*)",
   ],
 };

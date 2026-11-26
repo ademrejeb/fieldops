@@ -33,7 +33,7 @@ if (missingRequired.length > 0 || missingRecommended.length > 0) {
 export const env = {
   nodeEnv: process.env.NODE_ENV ?? "development",
   isProd: process.env.NODE_ENV === "production",
-  appName: read("NEXT_PUBLIC_APP_NAME") ?? "FieldOps FSM",
+  appName: read("NEXT_PUBLIC_APP_NAME") ?? "Khedma",
   appUrl: read("APP_URL") ?? read("NEXTAUTH_URL") ?? "http://localhost:3000",
   authSecret: read("NEXTAUTH_SECRET") ?? "insecure-dev-secret-do-not-use-in-prod",
   databaseUrl: read("DATABASE_URL") ?? "file:./prisma/dev.db",

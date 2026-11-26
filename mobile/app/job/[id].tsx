@@ -78,7 +78,7 @@ export default function JobDetail() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }}>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
-        <Pressable onPress={() => router.back()}><Text style={{ color: C.blue, fontWeight: "700" }}>← Missions</Text></Pressable>
+        <Pressable onPress={() => router.back()}><Text style={{ color: C.clay, fontWeight: "700" }}>← Missions</Text></Pressable>
         {msg ? <Card><Text style={{ color: C.ink }}>{msg}</Text></Card> : null}
         <Card>
           <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
@@ -102,7 +102,7 @@ export default function JobDetail() {
           <View style={{ flexDirection: "row", gap: 6, flexWrap: "wrap" }}>
             {FLOW.filter((s) => s !== job.status).map((s) => (
               <View key={s} style={{ flex: 1, minWidth: 100 }}>
-                <Btn label={FLOW_LABEL[s]} onPress={() => act(() => api.status(id, s), `Passé à ${FLOW_LABEL[s]}.`)} tone={s === "DONE" ? "green" : "blue"} />
+                <Btn label={FLOW_LABEL[s]} onPress={() => act(() => api.status(id, s), `Passé à ${FLOW_LABEL[s]}.`)} tone={s === "DONE" ? "green" : "clay"} />
               </View>
             ))}
           </View>
@@ -120,12 +120,12 @@ export default function JobDetail() {
                     <View style={{ flexDirection: "row", gap: 6, marginTop: 6 }}>
                       {(st.type === "check" ? ["PASS", "FAIL"] : ["OK"]).map((v) => (
                         <Pressable key={v} onPress={() => setStepResults((r) => ({ ...r, [st.key]: v }))}
-                          style={{ padding: 8, borderRadius: 8, backgroundColor: stepResults[st.key] === v ? C.blue : C.line }}>
+                          style={{ padding: 8, borderRadius: 8, backgroundColor: stepResults[st.key] === v ? C.clay : C.line }}>
                           <Text style={{ color: stepResults[st.key] === v ? "#fff" : C.ink, fontWeight: "700", fontSize: 12 }}>{v}</Text>
                         </Pressable>
                       ))}
                       <Pressable onPress={() => act(() => api.checklist(id, { stepKey: st.key, label: st.label, result: stepResults[st.key] ?? "PASS" }), "Étape validée.")}
-                        style={{ padding: 8, borderRadius: 8, backgroundColor: C.green }}>
+                        style={{ padding: 8, borderRadius: 8, backgroundColor: C.olive }}>
                         <Text style={{ color: "#fff", fontWeight: "700", fontSize: 12 }}>Valider</Text>
                       </Pressable>
                     </View>
@@ -183,7 +183,7 @@ export default function JobDetail() {
           <Field label="Signature">
             {signature ? (
               <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
-                <Text style={{ color: C.green, fontWeight: "700" }}>✓ Signature capturée</Text>
+                <Text style={{ color: C.olive, fontWeight: "700" }}>✓ Signature capturée</Text>
                 <Btn label="Refaire" onPress={() => setSignature("")} tone="ghost" />
               </View>
             ) : (
